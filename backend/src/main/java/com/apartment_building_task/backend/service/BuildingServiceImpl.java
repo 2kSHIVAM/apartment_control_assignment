@@ -4,6 +4,7 @@ import com.apartment_building_task.backend.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -26,13 +27,15 @@ public class BuildingServiceImpl implements BuildingService {
         return buildingStore.get(id);
     }
 
+    @Override
+    public List<Building> getAllBuildings(){ return buildingStore.values().stream().toList(); }
+
 //    Used to update the requested temperature of a building
     @Override
     public void setRequestedTemperature(String buildingId, double temp) {
         Building b = getBuilding(buildingId);
         if (b != null) {
             b.setRequestedTemperature(temp);
-            b.recalculateStatuses();
         }
     }
 
