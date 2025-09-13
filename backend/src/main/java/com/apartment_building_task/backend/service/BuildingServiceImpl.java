@@ -1,5 +1,7 @@
 package com.apartment_building_task.backend.service;
 
+import com.apartment_building_task.backend.exception.BuildingAlreadyExistsException;
+import com.apartment_building_task.backend.exception.BuildingNotFoundException;
 import com.apartment_building_task.backend.model.*;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,9 @@ public class BuildingServiceImpl implements BuildingService {
 //    Used to create a building
     @Override
     public Building createBuilding(String id, double requestedTemperature) {
+        if (buildingStore.containsKey(id)) {
+            throw new BuildingAlreadyExistsException(id);
+        }
         Building building = new Building(id, requestedTemperature);
         buildingStore.put(id, building);
         return building;
@@ -24,7 +29,11 @@ public class BuildingServiceImpl implements BuildingService {
 //    Used to fetch a building based on id
     @Override
     public Building getBuilding(String id) {
-        return buildingStore.get(id);
+        Building building = buildingStore.get(id);
+        if (building == null) {
+            throw new BuildingNotFoundException(id);
+        }
+        return building;
     }
 
     @Override
@@ -36,6 +45,8 @@ public class BuildingServiceImpl implements BuildingService {
         Building b = getBuilding(buildingId);
         if (b != null) {
             b.setRequestedTemperature(temp);
+        } else{
+            throw new BuildingNotFoundException(buildingId);
         }
     }
 
