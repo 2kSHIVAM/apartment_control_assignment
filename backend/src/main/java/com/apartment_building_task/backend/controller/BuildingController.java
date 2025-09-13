@@ -77,5 +77,36 @@ public class BuildingController {
                 .status(HttpStatus.CREATED)
                 .body(new ApiResponse<>("Common room added successfully", null));
     }
+
+
+    @PutMapping("/{id}/apartments/{roomId}")
+    public ResponseEntity<ApiResponse<Void>> editApartment(
+            @PathVariable String id, @PathVariable String roomId,
+            @RequestBody ApartmentRequest req) {
+        buildingService.editApartment(id, roomId, req.getOwnerName(), req.getTemp());
+        return ResponseEntity.ok(new ApiResponse<>("Apartment updated successfully", null));
+    }
+
+    @PutMapping("/{id}/common-rooms/{roomId}")
+    public ResponseEntity<ApiResponse<Void>> editCommonRoom(
+            @PathVariable String id, @PathVariable String roomId,
+            @RequestBody CommonRoomRequest req) {
+        buildingService.editCommonRoom(id, roomId, CommonRoom.CommonRoomType.valueOf(req.getType().toUpperCase()), req.getTemp());
+        return ResponseEntity.ok(new ApiResponse<>("Common room updated successfully", null));
+    }
+
+    @DeleteMapping("/{id}/rooms/{roomId}")
+    public ResponseEntity<ApiResponse<Void>> deleteRoom(
+            @PathVariable String id, @PathVariable String roomId) {
+        buildingService.removeRoom(id, roomId);
+        return ResponseEntity.ok(new ApiResponse<>("Room deleted successfully", null));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteBuilding(@PathVariable String id) {
+        buildingService.deleteBuilding(id);
+        return ResponseEntity.ok(new ApiResponse<>("Building deleted successfully", null));
+    }
+
 }
 

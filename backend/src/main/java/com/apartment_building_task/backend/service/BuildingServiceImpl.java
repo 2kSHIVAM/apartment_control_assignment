@@ -2,6 +2,7 @@ package com.apartment_building_task.backend.service;
 
 import com.apartment_building_task.backend.exception.BuildingAlreadyExistsException;
 import com.apartment_building_task.backend.exception.BuildingNotFoundException;
+import com.apartment_building_task.backend.exception.RoomNotFoundException;
 import com.apartment_building_task.backend.model.*;
 import org.springframework.stereotype.Service;
 
@@ -63,4 +64,38 @@ public class BuildingServiceImpl implements BuildingService {
         Building b = getBuilding(buildingId);
         if (b != null) b.addRoom(room);
     }
+
+    @Override
+    public void editApartment(String buildingId, String roomId, String ownerName, double temp) {
+        Building building = getBuilding(buildingId);
+        Apartment apt = (Apartment) building.findRoom(roomId);
+        if (apt == null) throw new RoomNotFoundException(roomId);
+        apt.setOwnerName(ownerName);
+        apt.setTemperature(temp);
+        building.recalculateStatuses();
+    }
+
+    @Override
+    public void editCommonRoom(String buildingId, String roomId, CommonRoom.CommonRoomType type, double temp) {
+        Building building = getBuilding(buildingId);
+        CommonRoom room = (CommonRoom) building.findRoom(roomId);
+        if (room == null) throw new RoomNotFoundException(roomId);
+        room.setType(type);
+        room.setTemperature(temp);
+        building.recalculateStatuses();
+    }
+
+    @Override
+    public void removeRoom(String buildingId, String roomId) {
+        Building building = getBuilding(buildingId);
+        if (building.findRoom(roomId) == null) throw new RoomNotFoundException(roomId);
+        building.removeRoom(roomId);
+    }
+
+    @Override
+    public void deleteBuilding(String buildingId) {
+        if (!buildingStore.containsKey(buildingId)) throw new BuildingNotFoundException(buildingId);
+        buildingStore.remove(buildingId);
+    }
+
 }

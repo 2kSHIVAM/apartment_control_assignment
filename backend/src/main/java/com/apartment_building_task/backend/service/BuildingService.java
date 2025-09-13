@@ -11,4 +11,9 @@ public interface BuildingService {
     void setRequestedTemperature(String buildingId, double temp);
     void addApartment(String buildingId, Apartment apartment);
     void addCommonRoom(String buildingId, CommonRoom room);
+    void editApartment(String buildingId, String roomId, String ownerName, double temp);
+    void editCommonRoom(String buildingId, String roomId, CommonRoom.CommonRoomType type, double temp);
+    void removeRoom(String buildingId, String roomId);
+    void deleteBuilding(String buildingId);
+
 }
