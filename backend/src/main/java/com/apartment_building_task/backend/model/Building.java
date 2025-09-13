@@ -27,6 +27,17 @@ public class Building {
         recalculateStatuses();
     }
 
+    public void removeRoom(String roomId) {
+        rooms.removeIf(r -> r.getId().equals(roomId));
+    }
+
+    public Room findRoom(String roomId) {
+        return rooms.stream()
+                .filter(r -> r.getId().equals(roomId))
+                .findFirst()
+                .orElse(null);
+    }
+
     public void recalculateStatuses() {
         rooms.forEach(r -> r.updateStatus(requestedTemperature, tolerance));
     }
