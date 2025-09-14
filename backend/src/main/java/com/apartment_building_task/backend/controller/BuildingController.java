@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -106,6 +107,14 @@ public class BuildingController {
     public ResponseEntity<ApiResponse<Void>> deleteBuilding(@PathVariable String id) {
         buildingService.deleteBuilding(id);
         return ResponseEntity.ok(new ApiResponse<>("Building deleted successfully", null));
+    }
+
+    @GetMapping("/common-room-types")
+    public ResponseEntity<ApiResponse<List<String>>> getCommonRoomTypes() {
+        List<String> types = Arrays.stream(CommonRoom.CommonRoomType.values())
+                .map(Enum::name)
+                .toList();
+        return ResponseEntity.ok(new ApiResponse<>("Success", types));
     }
 
 }
