@@ -84,7 +84,7 @@ export function AddBuildingModal({ open, onOpenChange }: AddBuildingModalProps) 
               id="building-id"
               value={buildingId}
               onChange={(e) => setBuildingId(e.target.value)}
-              placeholder="e.g., Building-A, Tower-1"
+              placeholder="e.g., 101, 102"
               className={errors.buildingId ? 'border-destructive' : ''}
             />
             {errors.buildingId && (

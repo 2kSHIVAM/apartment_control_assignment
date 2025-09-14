@@ -36,7 +36,7 @@ export function BuildingSection({ building, onEditRoom }: BuildingSectionProps) 
             </div>
             <div>
               <h2 className="text-lg font-semibold text-building-header">
-                {building.id}
+                Building: {building.id}
               </h2>
               <p className="text-sm text-muted-foreground">
                 {building.rooms.length} room{building.rooms.length !== 1 ? 's' : ''}

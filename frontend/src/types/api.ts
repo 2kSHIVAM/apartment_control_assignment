@@ -4,6 +4,7 @@ export interface RoomDTO {
   heatingEnabled: boolean;
   coolingEnabled: boolean;
   type: "Apartment" | "CommonRoom";
+  apartmentNumber?: string | null;
   ownerName?: string | null;
   commonRoomType?: "GYM" | "LIBRARY" | "LAUNDRY" | null;
 }
@@ -26,6 +27,7 @@ export interface CreateBuildingRequest {
 
 export interface AddApartmentRequest {
   ownerName: string;
+  apartmentNumber: string;
   temp: number;
 }
 

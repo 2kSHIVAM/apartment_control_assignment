@@ -31,14 +31,18 @@ export function RoomCard({ room, buildingId, onClick, onEdit, onDelete }: RoomCa
     return room.type === 'Apartment' ? 'apartment' : 'common';
   };
 
+  const roomName = room.type === 'Apartment' ? 'Apartment' : 'Common'
+
   const getCommonRoomIcon = () => {
     switch (room.commonRoomType) {
       case 'GYM': return <Dumbbell className="h-4 w-4" />;
       case 'LIBRARY': return <BookOpen className="h-4 w-4" />;
       case 'LAUNDRY': return <Shirt className="h-4 w-4" />;
-      default: return null;
+      default: return <BookOpen className="h-4 w-4" />;
     }
   };
+
+  const commonRoomTypeName = room?.commonRoomType?.length > 0 ?room.commonRoomType.charAt(0) + room.commonRoomType.slice(1).toLowerCase() : ''
 
   const status = getStatusColor();
   const roomType = getRoomTypeColor();
@@ -46,8 +50,8 @@ export function RoomCard({ room, buildingId, onClick, onEdit, onDelete }: RoomCa
   return (
     <Card
       className={cn(
-        "w-64 flex-shrink-0 transition-all duration-200 hover:shadow-medium hover:-translate-y-1 relative",
-        "border-l-4",
+        "w-64 flex-shrink-0 transition-all duration-200 hover:shadow-medium hover:translate-y-1 relative",
+        "border-l-8",
         roomType === 'apartment' && "border-l-blue-500 bg-gradient-to-br from-blue-50 to-white",
         roomType === 'common' && "border-l-purple-500 bg-gradient-to-br from-purple-50 to-white"
       )}
@@ -81,7 +85,7 @@ export function RoomCard({ room, buildingId, onClick, onEdit, onDelete }: RoomCa
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Room</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete this {room.type.toLowerCase()}? This action cannot be undone.
+                  Are you sure you want to delete this {roomName.toLowerCase()} room? This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -105,7 +109,7 @@ export function RoomCard({ room, buildingId, onClick, onEdit, onDelete }: RoomCa
               roomType === 'common' && "bg-purple-100 text-purple-800 border-purple-200"
             )}
           >
-            {room.type}
+            {roomName}
           </Badge>
           <Badge
             className={cn(
@@ -132,11 +136,11 @@ export function RoomCard({ room, buildingId, onClick, onEdit, onDelete }: RoomCa
             <div className="flex-1 min-w-0">
               {room.type === 'Apartment' ? (
                 <p className="font-medium text-card-foreground truncate">
-                  {room.ownerName}
+                  <span className="font-bold">{room.apartmentNumber}:</span> {room.ownerName}
                 </p>
               ) : (
                 <p className="font-medium text-card-foreground">
-                  {room.commonRoomType}
+                  { commonRoomTypeName }
                 </p>
               )}
             </div>

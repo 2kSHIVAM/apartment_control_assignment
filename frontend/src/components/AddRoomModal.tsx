@@ -32,6 +32,7 @@ export function AddRoomModal({ open, onOpenChange, editRoom, editBuildingId }: A
   const [selectedBuilding, setSelectedBuilding] = useState('');
   const [roomType, setRoomType] = useState<RoomType>('Apartment');
   const [ownerName, setOwnerName] = useState('');
+  const [apartmentNumber, setApartmentNumber] = useState('')
   const [commonRoomType, setCommonRoomType] = useState('');
   const [temperature, setTemperature] = useState('22');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -54,6 +55,7 @@ export function AddRoomModal({ open, onOpenChange, editRoom, editBuildingId }: A
       setSelectedBuilding(editBuildingId);
       setRoomType(editRoom.type === 'Apartment' ? 'Apartment' : 'CommonRoom');
       setOwnerName(editRoom.ownerName || '');
+      setApartmentNumber(editRoom.apartmentNumber || '')
       setCommonRoomType(editRoom.commonRoomType || '');
       setTemperature(editRoom.temperature.toString());
     } else if (!open) {
@@ -70,7 +72,11 @@ export function AddRoomModal({ open, onOpenChange, editRoom, editBuildingId }: A
     }
 
     if (roomType === 'Apartment' && !ownerName.trim()) {
-      newErrors.ownerName = 'Owner name is required for apartments';
+      newErrors.ownerName = 'Owner name is required';
+    }
+
+    if (roomType === 'Apartment' && !apartmentNumber.trim()) {
+      newErrors.apartmentNumber = 'Apartment number is required';
     }
 
     if (roomType === 'CommonRoom' && !commonRoomType) {
@@ -100,6 +106,7 @@ export function AddRoomModal({ open, onOpenChange, editRoom, editBuildingId }: A
             roomId: editRoom.id,
             data: {
               ownerName: ownerName.trim(),
+              apartmentNumber: apartmentNumber.trim(),
               temp: parseFloat(temperature),
             },
           });
@@ -116,10 +123,12 @@ export function AddRoomModal({ open, onOpenChange, editRoom, editBuildingId }: A
       } else {
         // Create new room
         if (roomType === 'Apartment') {
+            console.log(apartmentNumber)
           await addApartment.mutateAsync({
             buildingId: selectedBuilding,
             data: {
               ownerName: ownerName.trim(),
+              apartmentNumber: apartmentNumber.trim(),
               temp: parseFloat(temperature),
             },
           });
@@ -146,6 +155,7 @@ export function AddRoomModal({ open, onOpenChange, editRoom, editBuildingId }: A
     setSelectedBuilding('');
     setRoomType('Apartment');
     setOwnerName('');
+    setApartmentNumber('');
     setCommonRoomType('');
     setTemperature('22');
     setErrors({});
@@ -185,7 +195,7 @@ export function AddRoomModal({ open, onOpenChange, editRoom, editBuildingId }: A
               <SelectContent>
                 {buildings.map((building) => (
                   <SelectItem key={building.id} value={building.id}>
-                    {building.id}
+                    Building: {building.id}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -209,6 +219,21 @@ export function AddRoomModal({ open, onOpenChange, editRoom, editBuildingId }: A
           </div>
 
           {roomType === 'Apartment' ? (
+            <>
+            <div className="space-y-2">
+              <Label htmlFor="apartment-number">Apartment Number</Label>
+              <Input
+                id="apartment-number"
+                value={apartmentNumber}
+                onChange={(e) => setApartmentNumber(e.target.value)}
+                placeholder="Enter Apartment Number"
+                className={errors.apartmentNumber ? 'border-destructive' : ''}
+                disabled={isEditMode}
+              />
+              {errors.apartmentNumber && (
+                <p className="text-sm text-destructive">{errors.apartmentNumber}</p>
+              )}
+            </div>
             <div className="space-y-2">
               <Label htmlFor="owner-name">Owner Name</Label>
               <Input
@@ -222,6 +247,7 @@ export function AddRoomModal({ open, onOpenChange, editRoom, editBuildingId }: A
                 <p className="text-sm text-destructive">{errors.ownerName}</p>
               )}
             </div>
+            </>
           ) : (
             <div className="space-y-2">
               <Label htmlFor="common-room-type">Common Room Type</Label>
