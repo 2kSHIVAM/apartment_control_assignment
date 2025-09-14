@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useBuildings } from '@/hooks/useBuildings';
+import { RoomDTO } from '@/types/api';
 import { Header } from '@/components/Header';
 import { BuildingSection } from '@/components/BuildingSection';
 import { AddBuildingModal } from '@/components/AddBuildingModal';
@@ -12,15 +13,38 @@ import { Toaster } from 'react-hot-toast';
 const Index = () => {
   const [showAddBuilding, setShowAddBuilding] = useState(false);
   const [showAddRoom, setShowAddRoom] = useState(false);
-  
+  const [editRoom, setEditRoom] = useState<RoomDTO | undefined>();
+  const [editBuildingId, setEditBuildingId] = useState<string | undefined>();
+
+  const handleEditRoom = (room: RoomDTO) => {
+    // Find the building that contains this room
+    const buildingWithRoom = buildings.find(building =>
+      building.rooms.some(r => r.id === room.id)
+    );
+
+    if (buildingWithRoom) {
+      setEditRoom(room);
+      setEditBuildingId(buildingWithRoom.id);
+      setShowAddRoom(true);
+    }
+  };
+
+  const handleCloseRoomModal = (open: boolean) => {
+    if (!open) {
+      setEditRoom(undefined);
+      setEditBuildingId(undefined);
+    }
+    setShowAddRoom(open);
+  };
+
   const { data: buildingsResponse, isLoading, error } = useBuildings();
-  
+
   const buildings = buildingsResponse?.data || [];
 
   if (error) {
     return (
       <div className="min-h-screen bg-background">
-        <Header 
+        <Header
           onAddBuilding={() => setShowAddBuilding(true)}
           onAddRoom={() => setShowAddRoom(true)}
         />
@@ -47,7 +71,7 @@ const Index = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header 
+        <Header
           onAddBuilding={() => setShowAddBuilding(true)}
           onAddRoom={() => setShowAddRoom(true)}
         />
@@ -81,11 +105,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header 
+      <Header
         onAddBuilding={() => setShowAddBuilding(true)}
         onAddRoom={() => setShowAddRoom(true)}
       />
-      
+
       <main className="container py-8">
         {buildings.length === 0 ? (
           <div className="flex items-center justify-center py-16 text-center">
@@ -103,7 +127,7 @@ const Index = () => {
                   Get started by creating your first building to manage rooms and temperature control.
                 </p>
               </div>
-              <Button 
+              <Button
                 onClick={() => setShowAddBuilding(true)}
                 className="bg-gradient-primary shadow-medium hover:shadow-large transition-all duration-200"
                 size="lg"
@@ -116,26 +140,29 @@ const Index = () => {
         ) : (
           <div className="space-y-8">
             {buildings.map((building) => (
-              <BuildingSection 
-                key={building.id} 
-                building={building} 
+              <BuildingSection
+                key={building.id}
+                building={building}
+                onEditRoom={handleEditRoom}
               />
             ))}
           </div>
         )}
       </main>
 
-      <AddBuildingModal 
+      <AddBuildingModal
         open={showAddBuilding}
         onOpenChange={setShowAddBuilding}
       />
-      
-      <AddRoomModal 
+
+      <AddRoomModal
         open={showAddRoom}
-        onOpenChange={setShowAddRoom}
+        onOpenChange={handleCloseRoomModal}
+        editRoom={editRoom}
+        editBuildingId={editBuildingId}
       />
-      
-      <Toaster 
+
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 4000,

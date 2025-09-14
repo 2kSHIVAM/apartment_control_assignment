@@ -1,17 +1,30 @@
 import { useState } from 'react';
-import { BuildingDTO } from '@/types/api';
+import { BuildingDTO, RoomDTO } from '@/types/api';
 import { RoomCard } from './RoomCard';
 import { TemperatureControl } from './TemperatureControl';
 import { Button } from '@/components/ui/button';
-import { Building2, Edit3, Thermometer } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Building2, Edit3, Thermometer, Trash2 } from 'lucide-react';
+import { useDeleteRoom, useDeleteBuilding } from '@/hooks/useBuildings';
 import { cn } from '@/lib/utils';
 
 interface BuildingSectionProps {
   building: BuildingDTO;
+  onEditRoom?: (room: RoomDTO) => void;
 }
 
-export function BuildingSection({ building }: BuildingSectionProps) {
+export function BuildingSection({ building, onEditRoom }: BuildingSectionProps) {
   const [showTempControl, setShowTempControl] = useState(false);
+  const deleteRoom = useDeleteRoom();
+  const deleteBuilding = useDeleteBuilding();
+
+  const handleDeleteRoom = (buildingId: string, roomId: string) => {
+    deleteRoom.mutate({ buildingId, roomId });
+  };
+
+  const handleDeleteBuilding = () => {
+    deleteBuilding.mutate(building.id);
+  };
 
   return (
     <section className="space-y-4">
@@ -30,7 +43,7 @@ export function BuildingSection({ building }: BuildingSectionProps) {
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             {showTempControl ? (
               <TemperatureControl
@@ -55,6 +68,34 @@ export function BuildingSection({ building }: BuildingSectionProps) {
                 >
                   <Edit3 className="h-3 w-3" />
                 </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-red-100 text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Building</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Deleting this building will remove all rooms. Are you sure you want to continue?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteBuilding}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Delete Building
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             )}
           </div>
@@ -64,13 +105,16 @@ export function BuildingSection({ building }: BuildingSectionProps) {
           <div className="overflow-x-auto pb-2">
             <div className="flex gap-4 px-1 min-w-full">
               {building.rooms.map((room) => (
-                <RoomCard 
-                  key={room.id} 
+                <RoomCard
+                  key={room.id}
                   room={room}
+                  buildingId={building.id}
                   onClick={() => {
                     // Optional: implement room details modal
                     console.log('Room clicked:', room);
                   }}
+                  onEdit={onEditRoom}
+                  onDelete={handleDeleteRoom}
                 />
               ))}
             </div>

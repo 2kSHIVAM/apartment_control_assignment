@@ -49,3 +49,28 @@ export async function setBuildingTemperature(buildingId: string, temp: number): 
   });
   return response.data;
 }
+
+export async function updateApartment(buildingId: string, roomId: string, payload: AddApartmentRequest): Promise<ApiResponse<null>> {
+  const response = await api.put(`/api/buildings/${buildingId}/apartments/${roomId}`, payload);
+  return response.data;
+}
+
+export async function updateCommonRoom(buildingId: string, roomId: string, payload: AddCommonRoomRequest): Promise<ApiResponse<null>> {
+  const response = await api.put(`/api/buildings/${buildingId}/common-rooms/${roomId}`, payload);
+  return response.data;
+}
+
+export async function deleteRoom(buildingId: string, roomId: string): Promise<ApiResponse<null>> {
+  const response = await api.delete(`/api/buildings/${buildingId}/rooms/${roomId}`);
+  return response.data;
+}
+
+export async function deleteBuilding(buildingId: string): Promise<ApiResponse<null>> {
+  const response = await api.delete(`/api/buildings/${buildingId}`);
+  return response.data;
+}
+
+export async function getCommonRoomTypes(): Promise<ApiResponse<string[]>> {
+  const response = await api.get('/api/buildings/common-room-types');
+  return response.data;
+}

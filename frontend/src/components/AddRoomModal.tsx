@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useBuildings, useAddApartment, useAddCommonRoom } from '@/hooks/useBuildings';
+import { useState, useEffect } from 'react';
+import { useBuildings, useAddApartment, useAddCommonRoom, useUpdateApartment, useUpdateCommonRoom, useCommonRoomTypes } from '@/hooks/useBuildings';
+import { RoomDTO } from '@/types/api';
 import {
   Dialog,
   DialogContent,
@@ -16,75 +17,123 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Edit3, Loader2 } from 'lucide-react';
 
 interface AddRoomModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editRoom?: RoomDTO;
+  editBuildingId?: string;
 }
 
 type RoomType = 'Apartment' | 'CommonRoom';
-type CommonRoomType = 'GYM' | 'LIBRARY' | 'LAUNDRY';
 
-export function AddRoomModal({ open, onOpenChange }: AddRoomModalProps) {
+export function AddRoomModal({ open, onOpenChange, editRoom, editBuildingId }: AddRoomModalProps) {
   const [selectedBuilding, setSelectedBuilding] = useState('');
   const [roomType, setRoomType] = useState<RoomType>('Apartment');
   const [ownerName, setOwnerName] = useState('');
-  const [commonRoomType, setCommonRoomType] = useState<CommonRoomType>('GYM');
+  const [commonRoomType, setCommonRoomType] = useState('');
   const [temperature, setTemperature] = useState('22');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data: buildingsResponse } = useBuildings();
+  const { data: commonRoomTypesResponse } = useCommonRoomTypes();
   const addApartment = useAddApartment();
   const addCommonRoom = useAddCommonRoom();
+  const updateApartment = useUpdateApartment();
+  const updateCommonRoom = useUpdateCommonRoom();
 
   const buildings = buildingsResponse?.data || [];
-  const isLoading = addApartment.isPending || addCommonRoom.isPending;
+  const commonRoomTypes = commonRoomTypesResponse?.data || [];
+  const isEditMode = !!editRoom;
+  const isLoading = addApartment.isPending || addCommonRoom.isPending || updateApartment.isPending || updateCommonRoom.isPending;
+
+  // Populate form when editing
+  useEffect(() => {
+    if (editRoom && editBuildingId) {
+      setSelectedBuilding(editBuildingId);
+      setRoomType(editRoom.type === 'Apartment' ? 'Apartment' : 'CommonRoom');
+      setOwnerName(editRoom.ownerName || '');
+      setCommonRoomType(editRoom.commonRoomType || '');
+      setTemperature(editRoom.temperature.toString());
+    } else if (!open) {
+      // Reset form when modal closes and not editing
+      resetForm();
+    }
+  }, [editRoom, editBuildingId, open]);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!selectedBuilding) {
       newErrors.building = 'Please select a building';
     }
-    
+
     if (roomType === 'Apartment' && !ownerName.trim()) {
       newErrors.ownerName = 'Owner name is required for apartments';
     }
-    
+
+    if (roomType === 'CommonRoom' && !commonRoomType) {
+      newErrors.commonRoomType = 'Common room type is required';
+    }
+
     const temp = parseFloat(temperature);
     if (isNaN(temp) || temp <= 0) {
       newErrors.temperature = 'Temperature must be a positive number';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) return;
 
     try {
-      if (roomType === 'Apartment') {
-        await addApartment.mutateAsync({
-          buildingId: selectedBuilding,
-          data: {
-            ownerName: ownerName.trim(),
-            temp: parseFloat(temperature),
-          },
-        });
+      if (isEditMode && editRoom) {
+        // Update existing room
+        if (roomType === 'Apartment') {
+          await updateApartment.mutateAsync({
+            buildingId: selectedBuilding,
+            roomId: editRoom.id,
+            data: {
+              ownerName: ownerName.trim(),
+              temp: parseFloat(temperature),
+            },
+          });
+        } else {
+          await updateCommonRoom.mutateAsync({
+            buildingId: selectedBuilding,
+            roomId: editRoom.id,
+            data: {
+              type: commonRoomType as 'GYM' | 'LIBRARY' | 'LAUNDRY',
+              temp: parseFloat(temperature),
+            },
+          });
+        }
       } else {
-        await addCommonRoom.mutateAsync({
-          buildingId: selectedBuilding,
-          data: {
-            type: commonRoomType,
-            temp: parseFloat(temperature),
-          },
-        });
+        // Create new room
+        if (roomType === 'Apartment') {
+          await addApartment.mutateAsync({
+            buildingId: selectedBuilding,
+            data: {
+              ownerName: ownerName.trim(),
+              temp: parseFloat(temperature),
+            },
+          });
+        } else {
+          await addCommonRoom.mutateAsync({
+            buildingId: selectedBuilding,
+            data: {
+              type: commonRoomType as 'GYM' | 'LIBRARY' | 'LAUNDRY',
+              temp: parseFloat(temperature),
+            },
+          });
+        }
       }
-      
+
       // Reset form and close modal on success
       resetForm();
       onOpenChange(false);
@@ -97,7 +146,7 @@ export function AddRoomModal({ open, onOpenChange }: AddRoomModalProps) {
     setSelectedBuilding('');
     setRoomType('Apartment');
     setOwnerName('');
-    setCommonRoomType('GYM');
+    setCommonRoomType('');
     setTemperature('22');
     setErrors({});
   };
@@ -112,15 +161,24 @@ export function AddRoomModal({ open, onOpenChange }: AddRoomModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5 text-primary" />
-            Add New Room
+            {isEditMode ? (
+              <>
+                <Edit3 className="h-5 w-5 text-primary" />
+                Edit Room
+              </>
+            ) : (
+              <>
+                <Plus className="h-5 w-5 text-primary" />
+                Add New Room
+              </>
+            )}
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="building-select">Select Building</Label>
-            <Select value={selectedBuilding} onValueChange={setSelectedBuilding}>
+            <Select value={selectedBuilding} onValueChange={setSelectedBuilding} disabled={isEditMode}>
               <SelectTrigger className={errors.building ? 'border-destructive' : ''}>
                 <SelectValue placeholder="Choose a building" />
               </SelectTrigger>
@@ -139,7 +197,7 @@ export function AddRoomModal({ open, onOpenChange }: AddRoomModalProps) {
 
           <div className="space-y-2">
             <Label htmlFor="room-type">Room Type</Label>
-            <Select value={roomType} onValueChange={(value: RoomType) => setRoomType(value)}>
+            <Select value={roomType} onValueChange={(value: RoomType) => setRoomType(value)} disabled={isEditMode}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -167,16 +225,27 @@ export function AddRoomModal({ open, onOpenChange }: AddRoomModalProps) {
           ) : (
             <div className="space-y-2">
               <Label htmlFor="common-room-type">Common Room Type</Label>
-              <Select value={commonRoomType} onValueChange={(value: CommonRoomType) => setCommonRoomType(value)}>
-                <SelectTrigger>
-                  <SelectValue />
+              <Select value={commonRoomType} onValueChange={setCommonRoomType}>
+                <SelectTrigger className={errors.commonRoomType ? 'border-destructive' : ''}>
+                  <SelectValue placeholder="Select a common room type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="GYM">Gym</SelectItem>
-                  <SelectItem value="LIBRARY">Library</SelectItem>
-                  <SelectItem value="LAUNDRY">Laundry</SelectItem>
+                  {commonRoomTypes.length > 0 ? (
+                    commonRoomTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type.charAt(0) + type.slice(1).toLowerCase()}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="" disabled>
+                      Loading room types...
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
+              {errors.commonRoomType && (
+                <p className="text-sm text-destructive">{errors.commonRoomType}</p>
+              )}
             </div>
           )}
 
@@ -213,10 +282,10 @@ export function AddRoomModal({ open, onOpenChange }: AddRoomModalProps) {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Adding...
+                  {isEditMode ? 'Saving...' : 'Adding...'}
                 </>
               ) : (
-                'Add Room'
+                isEditMode ? 'Save Changes' : 'Add Room'
               )}
             </Button>
           </div>

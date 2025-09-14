@@ -18,7 +18,7 @@ interface AddBuildingModalProps {
 
 export function AddBuildingModal({ open, onOpenChange }: AddBuildingModalProps) {
   const [buildingId, setBuildingId] = useState('');
-  const [requestedTemp, setRequestedTemp] = useState('22');
+  const [requestedTemp, setRequestedTemp] = useState('20');
   const [errors, setErrors] = useState<Record<string, string>>({});
   
   const createBuilding = useCreateBuilding();
