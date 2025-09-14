@@ -11,4 +11,5 @@ public class RoomDTO {
     private String type;      // "Apartment" or "CommonRoom"
     private String ownerName; // only for Apartment
     private String commonRoomType; // only for CommonRoom
+    private String apartmentNumber;
 }

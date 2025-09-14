@@ -8,7 +8,7 @@ class BuildingTest {
     @Test
     void shouldAddRoomToBuilding() {
         Building building = new Building("B1", 25);
-        Apartment apt = new Apartment(20, "Alice");
+        Apartment apt = new Apartment(20, "12", "Alice");
         building.addRoom(apt);
 
         assertEquals(1, building.getRooms().size());
@@ -18,7 +18,7 @@ class BuildingTest {
     @Test
     void shouldRemoveRoomFromBuilding() {
         Building building = new Building("B1", 25);
-        Apartment apt = new Apartment(20, "Bob");
+        Apartment apt = new Apartment(20, "34","Bob");
         building.addRoom(apt);
 
         building.removeRoom(apt.getId());

@@ -7,7 +7,7 @@ class RoomTest {
 
     @Test
     void heatingShouldBeEnabledWhenRoomTempIsBelowRequested() {
-        Room room = new Apartment(18, "User1");
+        Room room = new Apartment(18, "1","User1");
         room.updateStatus(25, 0.5);
         assertTrue(room.isHeatingEnabled());
         assertFalse(room.isCoolingEnabled());
@@ -15,7 +15,7 @@ class RoomTest {
 
     @Test
     void coolingShouldBeEnabledWhenRoomTempIsAboveRequested() {
-        Room room = new Apartment(30, "User12");
+        Room room = new Apartment(30, "32","User12");
         room.updateStatus(25, 0.5);
         assertFalse(room.isHeatingEnabled());
         assertTrue(room.isCoolingEnabled());
@@ -23,7 +23,7 @@ class RoomTest {
 
     @Test
     void neitherHeatingNorCoolingWithinTolerance() {
-        Room room = new Apartment(25, "User1");
+        Room room = new Apartment(25, "23","User1");
         room.updateStatus(25, 0.5);
         assertFalse(room.isHeatingEnabled());
         assertFalse(room.isCoolingEnabled());
@@ -31,7 +31,7 @@ class RoomTest {
 
     @Test
     void heatingShouldBeOffWhenExactlyAtLowerToleranceLimit() {
-        Room room = new Apartment(24.6, "User2"); // requested=25, tolerance=0.5
+        Room room = new Apartment(24.6, "101","User2"); // requested=25, tolerance=0.5
         room.updateStatus(25, 0.5);
         assertFalse(room.isHeatingEnabled());
         assertFalse(room.isCoolingEnabled());
@@ -39,7 +39,7 @@ class RoomTest {
 
     @Test
     void coolingShouldBeOffWhenExactlyAtUpperToleranceLimit() {
-        Room room = new Apartment(25.4, "User3"); // requested=25, tolerance=0.5
+        Room room = new Apartment(25.4, "102","User3"); // requested=25, tolerance=0.5
         room.updateStatus(25, 0.5);
         assertFalse(room.isHeatingEnabled());
         assertFalse(room.isCoolingEnabled());
@@ -47,7 +47,7 @@ class RoomTest {
 
     @Test
     void heatingAndCoolingShouldBeOffWhenRequestedTemperatureChanges() {
-        Room room = new Apartment(20, "User4");
+        Room room = new Apartment(20, "103","User4");
         room.updateStatus(20, 0.5);
         assertFalse(room.isHeatingEnabled());
         assertFalse(room.isCoolingEnabled());
@@ -60,7 +60,7 @@ class RoomTest {
 
     @Test
     void roomTemperatureCanBeUpdatedManually() {
-        Apartment room = new Apartment(22, "Admin");
+        Apartment room = new Apartment(22, "104","Admin");
         assertEquals(22, room.getTemperature());
 
         room.setTemperature(28);
@@ -69,8 +69,8 @@ class RoomTest {
 
     @Test
     void roomHasUniqueId() {
-        Room room1 = new Apartment(20, "User2");
-        Room room2 = new Apartment(21, "User3");
+        Room room1 = new Apartment(20, "105","User2");
+        Room room2 = new Apartment(21, "106","User3");
 
         assertNotEquals(room1.getId(), room2.getId()); // each room should have unique id
     }

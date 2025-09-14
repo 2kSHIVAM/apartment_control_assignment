@@ -62,7 +62,7 @@ public class BuildingController {
     public ResponseEntity<ApiResponse<Void>> addApartment(
             @PathVariable String id,
             @Valid @RequestBody ApartmentRequest request) {
-        buildingService.addApartment(id, new Apartment(request.getTemp(), request.getOwnerName()));
+        buildingService.addApartment(id, new Apartment(request.getTemp(), request.getApartmentNumber(), request.getOwnerName()));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ApiResponse<>("Apartment added successfully", null));

@@ -18,6 +18,7 @@ public class BuildingMapper {
         if (room instanceof Apartment) {
             dto.setType("Apartment");
             dto.setOwnerName(((Apartment) room).getOwnerName());
+            dto.setApartmentNumber(((Apartment) room).getApartmentNumber());
         } else if (room instanceof CommonRoom) {
             dto.setType("CommonRoom");
             dto.setCommonRoomType(((CommonRoom) room).getType().name());

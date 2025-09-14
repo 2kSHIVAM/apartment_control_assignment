@@ -11,6 +11,9 @@ public class ApartmentRequest {
     @NotBlank(message = "Owner name cannot be blank")
     private String ownerName;
 
+    @NotBlank(message = "Apartment Number cannot be blank")
+    private String apartmentNumber;
+
     @Positive(message = "Temperature must be positive")
     private double temp;
 }
