@@ -35,6 +35,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private double getRandomTemp() {
-        return 10 + (40 - 10) * random.nextDouble(); // between 10 and 40
+        double temp = 10 + (40 - 10) * random.nextDouble(); // between 10 and 40
+        return Math.round(temp * 10) / 10.0; // round to one decimal place
     }
 }
