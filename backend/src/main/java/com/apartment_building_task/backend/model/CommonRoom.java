@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CommonRoom extends Room { // taking consideration that common room is a room
-    public enum CommonRoomType { GYM, LIBRARY, LAUNDRY, POOL }
+    public enum CommonRoomType { GYM, LIBRARY, LAUNDRY }
     private CommonRoomType type;
 
     public CommonRoom(double initialTemp, CommonRoomType type) {

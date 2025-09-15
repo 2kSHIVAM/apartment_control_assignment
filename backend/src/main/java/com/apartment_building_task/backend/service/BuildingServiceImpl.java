@@ -6,15 +6,15 @@ import com.apartment_building_task.backend.exception.RoomNotFoundException;
 import com.apartment_building_task.backend.model.*;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class BuildingServiceImpl implements BuildingService {
 
     // here we are using in memory space to store data, when scaling it we can integrate db like postgres
-    private final Map<String, Building> buildingStore = new HashMap<>();
+    private final Map<String, Building> buildingStore = new ConcurrentHashMap<>();
 
 //    Used to create a building
     @Override
