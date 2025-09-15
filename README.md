@@ -66,6 +66,12 @@ From the project root (`Apartment_control_assignment/`):
 ```bash
 docker compose up --build
 ```
+-If encountered error, try
+```bash
+docker compose build
+docker compose up
+```
+
 
 This will:  
 - Build and run the **backend** on [http://localhost:8080](http://localhost:8080)  
